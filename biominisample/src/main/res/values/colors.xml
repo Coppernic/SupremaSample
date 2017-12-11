@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#3f51b5</color>
+    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorAccent">#FF4081</color>
+    <color name="colorSupremaPrimary">#b23f0a</color>
+    <color name="colorSupremaLogText">#606060</color>
+    <color name="colorSupremaSettingBG">#efefef</color>
+    <color name="colorSupremaLightGray">#efefef</color>
+    <color name="colorSupremaText">#000000</color>
+    <color name="colorSupremaDarkSpace">#cfcfcf</color>
+</resources>

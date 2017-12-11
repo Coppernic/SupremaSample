@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+              android:background="@color/colorSupremaSettingBG">
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="2sp" />
+
+    <TextView
+        android:text="Export"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/textLabelMisc"
+        android:textColor="@color/colorSupremaText"
+        android:background="@color/colorSupremaLightGray"
+        android:paddingLeft="8sp"
+        android:paddingRight="8sp"
+        android:paddingBottom="2sp"
+        android:paddingTop="2sp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:foreground="@color/colorSupremaDarkSpace"
+        android:layout_span="2"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"/>
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/colorSupremaSettingBG">
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:minHeight="36dp">
+
+            <TextView
+                android:text="Template Type"
+                android:layout_height="wrap_content"
+                android:id="@+id/labelTemplateType"
+                android:layout_gravity="right|center_vertical"
+                android:textAlignment="center"
+                android:layout_width="wrap_content" />
+
+            <Spinner
+                android:layout_width="wrap_content"
+                android:layout_height="30sp"
+                android:id="@+id/spinnerTemplateType"
+                android:layout_span="2"
+                android:entries="@array/template_type"/>
+
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:minHeight="36dp">
+
+            <TextView
+                android:text="Encryption key"
+                android:layout_height="wrap_content"
+                android:id="@+id/labelEncryptionKey"
+                android:layout_gravity="right|center_vertical"
+                android:textAlignment="center"
+                android:layout_width="wrap_content" />
+
+            <EditText
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:inputType="text"
+                android:ems="10"
+                android:id="@+id/editEncryptKey"
+                android:layout_span="2" />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:minHeight="36dp">
+
+            <Button
+                android:text="@string/save_as_bmp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/buttonExportBmp" />
+
+            <Button
+                android:text="@string/save_as_wsq"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/buttonExportWsq"
+                android:layout_column="1" />
+
+            <Button
+                android:text="@string/save_template"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/buttonTemplate"
+                android:layout_column="1" />
+        </TableRow>
+
+    </TableLayout>
+
+    <GridLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="4dp"
+        android:background="@color/colorSupremaLightGray">
+
+    </GridLayout>
+
+</LinearLayout>

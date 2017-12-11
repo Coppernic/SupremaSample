@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string-array name="template_type">
+    <item>Supmrea</item>
+    <item>ISO</item>
+    <item>ANSI</item>
+  </string-array>
+</resources>
