@@ -1,10 +1,7 @@
 package com.suprema.biominisample;
 
 import android.app.PendingIntent;
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.hardware.usb.UsbDevice;
@@ -53,18 +50,24 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Locale;
 
+import fr.coppernic.sdk.power.PowerManager;
+import fr.coppernic.sdk.power.api.PowerListener;
+import fr.coppernic.sdk.power.api.peripheral.Peripheral;
+import fr.coppernic.sdk.power.impl.idplatform.IdPlatformPeripheral;
+import fr.coppernic.sdk.utils.core.CpcResult;
+
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     //Flag.
-    public static final boolean mbUsbExternalUSBManager = true;
+    //public static final boolean mbUsbExternalUSBManager = true;
     private static final String ACTION_USB_PERMISSION = "com.android.example.USB_PERMISSION";
     private UsbManager mUsbManager = null;
     private PendingIntent mPermissionIntent= null;
     //
 
 
-    private static BioMiniFactory mBioMiniFactory = null;
+    private BioMiniFactory mBioMiniFactory = null;
     public static final int REQUEST_WRITE_PERMISSION = 786;
     public IBioMiniDevice mCurrentDevice = null;
     private MainActivity mainContext;
@@ -197,6 +200,7 @@ public class MainActivity extends AppCompatActivity
     }
 
 
+    /*
     private final BroadcastReceiver mUsbReceiver = new BroadcastReceiver(){
         public void onReceive(Context context,Intent intent){
             String action = intent.getAction();
@@ -217,6 +221,8 @@ public class MainActivity extends AppCompatActivity
             }
         }
     };
+    */
+
     public void checkDevice(){
         if(mUsbManager == null) return;
         log("checkDevice");
@@ -253,9 +259,6 @@ public class MainActivity extends AppCompatActivity
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.setDrawerListener(toggle);
         toggle.syncState();
-
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
 
         // Auto generated above
 
@@ -304,6 +307,7 @@ public class MainActivity extends AppCompatActivity
                     new Thread(new Runnable() {
                         @Override
                         public void run() {
+                            Log.v("AbortCapturing", "Abort capture");
                             mCurrentDevice.abortCapturing();
                             int nRetryCount =0;
                             while(mCurrentDevice.isCapturing()){
@@ -321,19 +325,20 @@ public class MainActivity extends AppCompatActivity
             mBioMiniFactory.close();
         }
 
-        if( !mbUsbExternalUSBManager ){
+        //if( !mbUsbExternalUSBManager ){
             Button btn_checkDevice = (Button)findViewById(R.id.buttonCheckDevice);
             btn_checkDevice.setClickable(false);
             btn_checkDevice.setEnabled(false);
-        }else{
+        /*}else{
             ((Button)findViewById(R.id.buttonCheckDevice)).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     checkDevice();
                 }
             });
-        }
+        }*/
 
+        /*
         if( mbUsbExternalUSBManager ){
             mUsbManager = (UsbManager)getSystemService(Context.USB_SERVICE);
             mBioMiniFactory = new BioMiniFactory(mainContext, mUsbManager){
@@ -369,79 +374,99 @@ public class MainActivity extends AppCompatActivity
                     }
                 }
             };
+
             //
             mPermissionIntent = PendingIntent.getBroadcast(this,0,new Intent(ACTION_USB_PERMISSION),0);
             IntentFilter filter = new IntentFilter(ACTION_USB_PERMISSION);
-            registerReceiver(mUsbReceiver, filter);
+            //registerReceiver(mUsbReceiver, filter);
             checkDevice();
 
 
 
 
         }else {
-            mBioMiniFactory = new BioMiniFactory(mainContext) {
-                @Override
-                public void onDeviceChange(DeviceChangeEvent event, Object dev) {
-                    log("----------------------------------------");
-                    log("onDeviceChange : " + event);
-                    log("----------------------------------------");
-                    if (event == DeviceChangeEvent.DEVICE_ATTACHED && mCurrentDevice == null) {
-                        new Thread(new Runnable() {
-                            @Override
-                            public void run() {
-                                int cnt = 0;
-                                while (mBioMiniFactory == null && cnt < 20) {
-                                    SystemClock.sleep(1000);
-                                    cnt++;
-                                }
-                                if (mBioMiniFactory != null) {
-                                    mCurrentDevice = mBioMiniFactory.getDevice(0);
-                                    Log.d(TAG, "mCurrentDevice attached : " + mCurrentDevice);
-                                    if (mCurrentDevice != null) {
-                                        log(" DeviceName : " + mCurrentDevice.getDeviceInfo().deviceName);
-                                        log("         SN : " + mCurrentDevice.getDeviceInfo().deviceSN);
-                                        log("SDK version : " + mCurrentDevice.getDeviceInfo().versionSDK);
+        */
+        PowerManager.get().registerListener(new PowerListener() {
+            @Override
+            public void onPowerUp(CpcResult.RESULT result, Peripheral peripheral) {
+                if (result == CpcResult.RESULT.OK){
+
+                    mBioMiniFactory = new BioMiniFactory(mainContext) {
+                        @Override
+                        public void onDeviceChange(DeviceChangeEvent event, Object dev) {
+                            log("----------------------------------------");
+                            log("onDeviceChange : " + event);
+                            log("----------------------------------------");
+                            if (event == DeviceChangeEvent.DEVICE_ATTACHED && mCurrentDevice == null) {
+                                new Thread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        int cnt = 0;
+                                        while (mBioMiniFactory == null && cnt < 20) {
+                                            SystemClock.sleep(1000);
+                                            cnt++;
+                                        }
+                                        if (mBioMiniFactory != null) {
+                                            mCurrentDevice = mBioMiniFactory.getDevice(0);
+                                            Log.d(TAG, "mCurrentDevice attached : " + mCurrentDevice);
+                                            if (mCurrentDevice != null) {
+                                                log(" DeviceName : " + mCurrentDevice.getDeviceInfo().deviceName);
+                                                log("         SN : " + mCurrentDevice.getDeviceInfo().deviceSN);
+                                                log("SDK version : " + mCurrentDevice.getDeviceInfo().versionSDK);
+                                            }
+                                        }
                                     }
-                                }
+                                }).start();
+                            } else if (mCurrentDevice != null && event == DeviceChangeEvent.DEVICE_DETACHED && mCurrentDevice.isEqual(dev)) {
+                                Log.d(TAG, "mCurrentDevice removed : " + mCurrentDevice);
+                                mCurrentDevice = null;
                             }
-                        }).start();
-                    } else if (mCurrentDevice != null && event == DeviceChangeEvent.DEVICE_DETACHED && mCurrentDevice.isEqual(dev)) {
-                        Log.d(TAG, "mCurrentDevice removed : " + mCurrentDevice);
-                        mCurrentDevice = null;
-                    }
+                        }
+                    };
+                    //}
+
+                    printRev(""+mBioMiniFactory.getSDKInfo());
+
+                    mPager = (ViewPager)findViewById(R.id.viewpager);
+                    PageAdaptor viewPageradaptor= new PageAdaptor(getLayoutInflater());
+                    mPager.setAdapter(viewPageradaptor);
+                    mPager.setOffscreenPageLimit(5);
+                    //
+                    mScrollLog = (ScrollView) findViewById(R.id.scrollLog);
+
+                    mPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+
+
+                        @Override
+                        public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+                            setMenuPicker(position);
+                        }
+
+                        @Override
+                        public void onPageSelected(int position) {
+                            bindComponents();
+                        }
+                        @Override
+                        public void onPageScrollStateChanged(int state) {
+
+                        }
+                    });
+
+                    NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+                    navigationView.setNavigationItemSelectedListener(mainContext);
+                    navigationView.getMenu().getItem(0).setChecked(true);
+                    bindComponents();
+                } else {
+
                 }
-            };
-        }
-
-        printRev(""+mBioMiniFactory.getSDKInfo());
-
-        mPager = (ViewPager)findViewById(R.id.viewpager);
-        PageAdaptor viewPageradaptor= new PageAdaptor(getLayoutInflater());
-        mPager.setAdapter(viewPageradaptor);
-        mPager.setOffscreenPageLimit(5);
-        //
-        mScrollLog = (ScrollView) findViewById(R.id.scrollLog);
-
-        mPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-
-
-            @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-                setMenuPicker(position);
             }
 
             @Override
-            public void onPageSelected(int position) {
-                bindComponents();
-            }
-            @Override
-            public void onPageScrollStateChanged(int state) {
+            public void onPowerDown(CpcResult.RESULT result, Peripheral peripheral) {
 
             }
         });
-
-        navigationView.getMenu().getItem(0).setChecked(true);
-        bindComponents();
+        IdPlatformPeripheral.FINGERPRINT.on(this);
     }
 
     @Override
@@ -471,7 +496,9 @@ public class MainActivity extends AppCompatActivity
             mBioMiniFactory.close();
             mBioMiniFactory = null;
         }
-        unregisterReceiver(mUsbReceiver);
+        IdPlatformPeripheral.FINGERPRINT.off(this);
+        PowerManager.get().releaseAndUnregister();
+        //unregisterReceiver(mUsbReceiver);
         super.onDestroy();
     }
 
